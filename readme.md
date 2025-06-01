@@ -7,27 +7,27 @@ This project is a multi-agent system where multiple AI agents collaborate to con
 
 ## Main Features
 
-- **PDF and Theme Input**  
+- **PDF and Theme Input**
   Users can input a PDF file or a text theme to serve as the basis for the discussion.
 
-- **Agent Selection and Role Assignment**  
-  You can select participants from the "Orchestrator" plus up to six agents (A–F).  
+- **Agent Selection and Role Assignment**
+  You can select participants from the "Orchestrator" plus up to six agents.
   Each agent provides opinions from their area of expertise and can ask for input from other agents.
 
-- **Automated Group Chat Progression**  
+- **Automated Group Chat Progression**
   The Orchestrator summarizes the discussion and aggregates the opinions of all agents to generate a final proposal.
 
-- **Web Interface with Streamlit**  
+- **Web Interface with Streamlit**
   Conversation history is displayed with color coding and icons for each agent.
 
 ---
 
 ## File Structure
 
-- `src/agents.py`  
+- `src/agents.py`
   Manages agent creation, prompt settings, group chat construction, and other AI agent logic.
 
-- `src/app.py`  
+- `src/app.py`
   Handles the Streamlit web UI, PDF reading, user input, and conversation history display.
 
 ---
@@ -51,7 +51,7 @@ This project is a multi-agent system where multiple AI agents collaborate to con
 2. **Create and activate a virtual environment**
     ```sh
     python -m venv venv_demo
-    venv_demo\Scripts\activate  # For Windows
+    .\venv_demo\Scripts\activate #for windows
     ```
 
 3. **Install dependencies**
@@ -59,7 +59,7 @@ This project is a multi-agent system where multiple AI agents collaborate to con
     pip install -r requirements.txt
     ```
 
-4. **Set environment variables**  
+4. **Set environment variables**
    Create a `.env` file in the project root and add the following:
     ```
     DEPLOYMENT_NAME=(Your Azure OpenAI deployment name)
@@ -74,10 +74,10 @@ This project is a multi-agent system where multiple AI agents collaborate to con
 
 1. **Start the Streamlit app**
     ```sh
-    streamlit run src/app.py
+    streamlit run .\src\app.py #for windows
     ```
 
-2. **Access via web browser**  
+2. **Access via web browser**
    Open the specified local URL (e.g., http://localhost:8501).
 
 ---
