@@ -108,8 +108,7 @@ This project is licensed under the MIT License.
 ## Notes
 
 - You need an API key and endpoint to use Azure OpenAI Service.
-- PDF files are read using `PyPDF2`, and Word files use `python-docx`.
-- The maximum number of conversation rounds is set to 10 (can be changed in `src/agents.py`).
+- If you want to use the application in Japanese, please refer to the code in the files with `ja` in their names (e.g., `app-ja.py`, `agents-ja.py`).
 
 ---
 
@@ -119,5 +118,3 @@ This project is licensed under the MIT License.
 - [src/app.py](src/app.py)
 
 ---
-
-**If you want to use the application in Japanese, please refer to the code in the files with `ja` in their names (e.g., `app-ja.py`, `agents-ja.py`).**
