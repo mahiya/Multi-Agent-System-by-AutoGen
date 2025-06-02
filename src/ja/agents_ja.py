@@ -2,9 +2,8 @@
 # ライブラリ
 #======================================
 import os
-from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+from autogen import AssistantAgent, UserProxyAgent, GroupChat
 from dotenv import load_dotenv
-from docx import Document
 
 #======================================
 # 環境変数の読み込み
@@ -42,18 +41,6 @@ user_proxy = UserProxyAgent(
 def get_agent_names(selected_agents):
     """User, オーケストレーターを除いたエージェント名リストを返す"""
     return [name for name in selected_agents if name not in ("オーケストレーター", "User")]
-
-#======================================
-# PDFファイルを読み込み
-#======================================
-def start_group_chat(pdf_path, selected_agents):
-    """グループチャットを開始"""
-    # PDFファイルからテキスト抽出
-    doc = Document(pdf_path)
-    user_message = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
-    groupchat = create_groupchat(selected_agents)
-    manager = GroupChatManager(groupchat=groupchat)
-    user_proxy.initiate_chat(manager, message=user_message)
 
 #======================================
 # オーケストレーター Agent

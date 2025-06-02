@@ -2,9 +2,8 @@
 # Libraries
 #======================================
 import os
-from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+from autogen import AssistantAgent, UserProxyAgent, GroupChat
 from dotenv import load_dotenv
-from docx import Document
 
 #======================================
 # Load environment variables
@@ -42,18 +41,6 @@ user_proxy = UserProxyAgent(
 def get_agent_names(selected_agents):
     """Return a list of agent names excluding User and Orchestrator"""
     return [name for name in selected_agents if name not in ("Orchestrator", "User")]
-
-#======================================
-# Read PDF file
-#======================================
-def start_group_chat(pdf_path, selected_agents):
-    """Start a group chat"""
-    # Extract text from PDF file
-    doc = Document(pdf_path)
-    user_message = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
-    groupchat = create_groupchat(selected_agents)
-    manager = GroupChatManager(groupchat=groupchat)
-    user_proxy.initiate_chat(manager, message=user_message)
 
 #======================================
 # Orchestrator Agent
