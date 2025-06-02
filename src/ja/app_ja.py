@@ -1,5 +1,5 @@
 #======================================
-# Libraries
+# ライブラリ
 #======================================
 import os
 import re
@@ -9,15 +9,15 @@ import streamlit as st
 
 from autogen import GroupChatManager
 from dotenv import load_dotenv
-from agents import create_groupchat
+from agents_ja import create_groupchat
 
 #======================================
-# Load environment variables
+# 環境変数の読込み
 #======================================
 load_dotenv()
 
 #======================================
-# Azure OpenAI LLM configuration
+# Azure OpenAI LLMの設定
 #======================================
 llm_config = {
     "config_list": [
@@ -32,7 +32,7 @@ llm_config = {
 }
 
 #======================================
-# Read PDF file
+# PDFファイル読み取り
 #======================================
 def read_pdf(file_path):
     text = ""
@@ -43,42 +43,42 @@ def read_pdf(file_path):
     return text
 
 #======================================
-# Agent settings *Color
-# Change agent names and colors as needed.
+# エージェント設定　*カラー
+# エージェント名とカラーを変更してください。
 #======================================
 agent_styles = {
     "User": "background-color:#b0c4d6; color:#1a2634;",
-    "Orchestrator": "background-color:#ffe2b2; color:#5a3e1b;",
-    "AgentA": "background-color:#d1c4e9; color:#2d254c;",
-    "AgentB": "background-color:#b7d7c9; color:#1b3a2b;",
-    "AgentC": "background-color:#f5e9b5; color:#665c1e;",
-    "AgentD": "background-color:#f3c1c6; color:#6b2b36;",
-    "AgentE": "background-color:#b3d1e6; color:#1b2c3a;",
-    "AgentF": "background-color:#d7ccc8; color:#3e2723;"
+    "オーケストレーター": "background-color:#ffe2b2; color:#5a3e1b;",
+    "エージェントA": "background-color:#d1c4e9; color:#2d254c;",
+    "エージェントB": "background-color:#b7d7c9; color:#1b3a2b;",
+    "エージェントC": "background-color:#f5e9b5; color:#665c1e;",
+    "エージェントD": "background-color:#f3c1c6; color:#6b2b36;",
+    "エージェントE": "background-color:#b3d1e6; color:#1b2c3a;",
+    "エージェントF": "background-color:#d7ccc8; color:#3e2723;"
 }
 
 #======================================
-# Agent settings *Icon
-# Change agent names and icons as needed.
+# エージェント設定　*アイコン
+# エージェント名とアイコンを変更してください。
 #======================================
 agent_images = {
-    "Orchestrator": "https://img.icons8.com/fluency/96/administrator-male.png",
-    "AgentA": "https://img.icons8.com/color/96/000000/a.png",
-    "AgentB": "https://img.icons8.com/color/96/000000/b.png",
-    "AgentC": "https://img.icons8.com/color/96/000000/c.png",
-    "AgentD": "https://img.icons8.com/color/96/000000/d.png",
-    "AgentE": "https://img.icons8.com/color/96/000000/e.png",
-    "AgentF": "https://img.icons8.com/color/96/000000/f.png",
+    "オーケストレーター": "https://img.icons8.com/fluency/96/administrator-male.png",
+    "エージェントA": "https://img.icons8.com/color/96/000000/a.png",
+    "エージェントB": "https://img.icons8.com/color/96/000000/b.png",
+    "エージェントC": "https://img.icons8.com/color/96/000000/c.png",
+    "エージェントD": "https://img.icons8.com/color/96/000000/d.png",
+    "エージェントE": "https://img.icons8.com/color/96/000000/e.png",
+    "エージェントF": "https://img.icons8.com/color/96/000000/f.png",
     "User": "https://img.icons8.com/color/96/000000/user.png"
 }
 
 #======================================
-# Streamlit settings
+# streamlitの設定
 #======================================
 def main():
     st.markdown(
 #======================================
-# If you have a company logo, please put the URL here
+# 企業ロゴ等があればここにURLを載せてください
 #======================================
 
         """
@@ -91,11 +91,11 @@ def main():
     st.markdown("---")
     st.markdown(
 #======================================
-# Set the title of the multi-agent system
+# マルチエージェントシステムのタイトルを設定してください
 #======================================
         """
         <h2 style="text-align:center;">
-            Example: Multi-Agent System<br> Subtitle
+            例：マルチエージェントシステム<br> サブタイトル
         </h2>
         """,
         unsafe_allow_html=True
@@ -103,28 +103,28 @@ def main():
     st.markdown("---")
 
 #======================================
-# Change agent names as needed.
+# エージェント名を変更してください。
 #======================================
     selectable_agents = [
-        "AgentA",
-        "AgentB",
-        "AgentC",
-        "AgentD",
-        "AgentE",
-        "AgentF"
+        "エージェントA",
+        "エージェントB",
+        "エージェントC",
+        "エージェントD",
+        "エージェントE",
+        "エージェントF"
     ]
 
-    theme = st.text_input("Enter theme (required)", key="discussion_theme")
+    theme = st.text_input("テーマを入力してください（必須）", key="discussion_theme")
 
     selected_agents = st.multiselect(
-        "Select agents",
+        "エージェント選択",
         options=selectable_agents,
         default=[]
     )
-    # Orchestrator and User are default
-    selected_agents = ["Orchestrator"] + selected_agents + ["User"]
+    #オーケストレーターとUserはデフォルト
+    selected_agents = ["オーケストレーター"] + selected_agents + ["User"]
 
-    # Initialize session
+    # セッション初期化
     if "groupchat" not in st.session_state:
         st.session_state.groupchat = None
     if "manager" not in st.session_state:
@@ -136,49 +136,49 @@ def main():
     if "chat_started" not in st.session_state:
         st.session_state.chat_started = False
 
-    # Read PDF file
-    pdf_path = st.text_input("Reference file path (optional)", key="pdf_path")
+    # PDFファイル読み込み
+    pdf_path = st.text_input("参照ファイルパス（任意）", key="pdf_path")
 
-    # Send input to agents
-    if st.button("Send input to agents"):
+    # エージェントへ問い合わせ
+    if st.button("エージェントへインプット"):
         user_message = ""
         if pdf_path:
             try:
                 user_message = read_pdf(pdf_path)
                 st.session_state.user_message = user_message
-                st.success("File loaded successfully.")
-                st.text_area("Loaded file", user_message, height=200)
+                st.success("ファイルを読み込みました。")
+                st.text_area("読み込んだファイル", user_message, height=200)
             except Exception as e:
-                st.error(f"An error occurred: {e}")
+                st.error(f"エラーが発生しました: {e}")
                 return
 
         if theme.strip():
             if user_message:
-                user_message += f"\n\n[Theme]\n{theme.strip()}"
+                user_message += f"\n\n【テーマ】\n{theme.strip()}"
             else:
-                user_message = f"[Theme]\n{theme.strip()}"
+                user_message = f"【テーマ】\n{theme.strip()}"
 
         if not user_message.strip():
-            st.warning("Please enter either a PDF or a theme.")
+            st.warning("PDFまたはテーマのどちらかを入力してください。")
             return
 
-        # Initialize group chat
+        # グループチャットの初期化
         groupchat = create_groupchat(selected_agents)
         manager = GroupChatManager(groupchat=groupchat, llm_config=llm_config)
         st.session_state.groupchat = groupchat
         st.session_state.manager = manager
         st.session_state.initialized = True
-        st.session_state.chat_started = False  # Reset chat start flag
+        st.session_state.chat_started = False  # チャット開始フラグをリセット
 
-        # Run chat here (complete in terminal)
+        # チャットはここで実行（ターミナルで完了させる）
         groupchat.agents[-1].initiate_chat(manager, message=user_message)
 
-    # Start conversation
+    # 会話開始
     if st.session_state.initialized and st.session_state.groupchat:
-        if st.button("Start discussion"):
+        if st.button("ディスカッションを開始します"):
             st.session_state.chat_started = True
 
-    # Display conversation history
+    # 会話履歴の表示
     if st.session_state.initialized and st.session_state.groupchat and st.session_state.chat_started:
         st.markdown("""
         <style>
@@ -216,7 +216,7 @@ def main():
         </style>
         """, unsafe_allow_html=True)
 
-        st.markdown("### Conversation history of each agent")
+        st.markdown("### 各エージェントの会話履歴")
         chat_container = st.container()
 
         with chat_container:
@@ -281,7 +281,7 @@ def main():
                         """,
                         unsafe_allow_html=True
                     )
-                time.sleep(5)  # Set the display interval for each message to 5 seconds
+                time.sleep(5)  # 各メッセージの表示間隔を5秒に設定
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 #======================================
-# ライブラリ
+# Libraries
 #======================================
 import os
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 from docx import Document
 
 #======================================
-# 環境変数の読み込み
+# Load environment variables
 #======================================
 load_dotenv()
 
 #======================================
-# Azure OpenAI LLMの設定
+# Azure OpenAI LLM configuration
 #======================================
 llm_config = {
     "config_list": [
@@ -37,18 +37,18 @@ user_proxy = UserProxyAgent(
     )
 
 #======================================
-# Agentの取得
+# Get agent names
 #======================================
 def get_agent_names(selected_agents):
-    """User, オーケストレーターを除いたエージェント名リストを返す"""
-    return [name for name in selected_agents if name not in ("オーケストレーター", "User")]
+    """Return a list of agent names excluding User and Orchestrator"""
+    return [name for name in selected_agents if name not in ("Orchestrator", "User")]
 
 #======================================
-# PDFファイルを読み込み
+# Read PDF file
 #======================================
 def start_group_chat(pdf_path, selected_agents):
-    """グループチャットを開始"""
-    # PDFファイルからテキスト抽出
+    """Start a group chat"""
+    # Extract text from PDF file
     doc = Document(pdf_path)
     user_message = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
     groupchat = create_groupchat(selected_agents)
@@ -56,82 +56,82 @@ def start_group_chat(pdf_path, selected_agents):
     user_proxy.initiate_chat(manager, message=user_message)
 
 #======================================
-# オーケストレーター Agent
-# 必要に応じてシステムプロンプトを変更してください。
+# Orchestrator Agent
+# Modify the system prompt as needed.
 #======================================
 def generate_summary_system_message(selected_agents):
-    """オーケストレーター用システムメッセージ生成"""
+    """Generate system message for Orchestrator"""
     agent_list_str = "、".join(get_agent_names(selected_agents))
     return (
-        "あなたは議論のオーケストレーターです。"
-        "会話の最初にUserのインプット情報を要約し、最初に発言すべきエージェントを指名してください。"
-        f"今回の参加エージェントは: {agent_list_str} です。"
-        "各エージェントの意見が出揃ったら、最後にユーザーに向けて提案をまとめてください。"
-        f"他エージェントとの連携は、{agent_list_str}の名称の中から使ってください。"
+        "You are the orchestrator of the discussion."
+        "At the beginning of the conversation, summarize the user's input and designate the agent who should speak first."
+        f"The participating agents are: {agent_list_str}."
+        "Once all agents have given their opinions, summarize the suggestions for the user at the end."
+        f"For collaboration with other agents, use the names from {agent_list_str}."
     )
 
 #======================================
 # Agent
-# 必要に応じてシステムプロンプトを変更してください。
+# Modify the system prompt as needed.
 #======================================
 def generate_agent_system_message(agent_type, selected_agents):
-    """各エージェント用システムメッセージ生成"""
+    """Generate system message for each agent"""
     agent_list_str = "、".join(get_agent_names(selected_agents))
     return (
-        f"あなたは{agent_type}の専門家です。"
-        "自分の観点でレビューした後、他エージェントへ0回、もしくは1回意見を求めてください。"
-        "直前の会話で他のエージェントから意見を求められた場合は、その意見の内容を加味して発言をしてください。"
-        f"自分の専門分野（{agent_type}）以外の内容についてはコメントしないでください。"
-        f"他エージェントとの連携は、{agent_list_str}の名称の中から使ってください。"
+        f"You are an expert in {agent_type}."
+        "After reviewing from your own perspective, ask for opinions from other agents zero or one time."
+        "If another agent asked for your opinion in the previous conversation, take that into account in your response."
+        f"Do not comment on matters outside your area of expertise ({agent_type})."
+        f"For collaboration with other agents, use the names from {agent_list_str}."
     )
 
 #======================================
-# グループチャット
-# ここでエージェント名も変更してください。
+# Group chat
+# Change agent names here as needed.
 #======================================
 def create_groupchat(selected_agents):
-    """選択されたエージェントでグループチャットを生成"""
+    """Create a group chat with the selected agents"""
     agent_map = {
-        "オーケストレーター": lambda: AssistantAgent(
-            name="オーケストレーター",
+        "Orchestrator": lambda: AssistantAgent(
+            name="Orchestrator",
             system_message=generate_summary_system_message(selected_agents),
             llm_config=llm_config
         ),
-        "エージェントA": lambda: AssistantAgent(
-            name="エージェントA",
-            system_message=generate_agent_system_message("エージェントA", selected_agents),
+        "AgentA": lambda: AssistantAgent(
+            name="AgentA",
+            system_message=generate_agent_system_message("AgentA", selected_agents),
             llm_config=llm_config
         ),
-        "エージェントB": lambda: AssistantAgent(
-            name="エージェントB",
-            system_message=generate_agent_system_message("エージェントB", selected_agents),
+        "AgentB": lambda: AssistantAgent(
+            name="AgentB",
+            system_message=generate_agent_system_message("AgentB", selected_agents),
             llm_config=llm_config
         ),
-        "エージェントC": lambda: AssistantAgent(
-            name="エージェントC",
-            system_message=generate_agent_system_message("エージェントC", selected_agents),
+        "AgentC": lambda: AssistantAgent(
+            name="AgentC",
+            system_message=generate_agent_system_message("AgentC", selected_agents),
             llm_config=llm_config
         ),
-        "エージェントD": lambda: AssistantAgent(
-            name="エージェントD",
-            system_message=generate_agent_system_message("エージェントD", selected_agents),
+        "AgentD": lambda: AssistantAgent(
+            name="AgentD",
+            system_message=generate_agent_system_message("AgentD", selected_agents),
             llm_config=llm_config
         ),
-        "エージェントE": lambda: AssistantAgent(
-            name="エージェントE",
-            system_message=generate_agent_system_message("エージェントE", selected_agents),
+        "AgentE": lambda: AssistantAgent(
+            name="AgentE",
+            system_message=generate_agent_system_message("AgentE", selected_agents),
             llm_config=llm_config
         ),
-        "エージェントF": lambda: AssistantAgent(
-            name="エージェントF",
-            system_message=generate_agent_system_message("エージェントF", selected_agents),
+        "AgentF": lambda: AssistantAgent(
+            name="AgentF",
+            system_message=generate_agent_system_message("AgentF", selected_agents),
             llm_config=llm_config
         ),
         "User": lambda: user_proxy,
     }
     agents = [agent_map[name]() for name in selected_agents if name in agent_map]
 #======================================
-# 会話の最大回数の設定
-# max_round=10で、最大10回までの会話を設定する
+# Set the maximum number of conversation rounds
+# Set max_round=10 to allow up to 10 rounds of conversation
 #======================================
     return GroupChat(agents=agents, messages=[], max_round=10)

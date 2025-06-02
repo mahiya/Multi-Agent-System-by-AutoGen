@@ -117,3 +117,7 @@ This project is licensed under the MIT License.
 
 - [src/agents.py](src/agents.py)
 - [src/app.py](src/app.py)
+
+---
+
+**If you want to use the application in Japanese, please refer to the code in the files with `ja` in their names (e.g., `app-ja.py`, `agents-ja.py`).**
