@@ -1,9 +1,10 @@
-#======================================
+# ======================================
 # Libraries
-#======================================
+# ======================================
 import os
 import re
 import time
+from io import BytesIO
 import PyPDF2
 import streamlit as st
 
@@ -11,14 +12,14 @@ from autogen import GroupChatManager
 from dotenv import load_dotenv
 from agents import create_groupchat
 
-#======================================
+# ======================================
 # Load environment variables
-#======================================
+# ======================================
 load_dotenv()
 
-#======================================
+# ======================================
 # Azure OpenAI LLM configuration
-#======================================
+# ======================================
 llm_config = {
     "config_list": [
         {
@@ -31,21 +32,34 @@ llm_config = {
     ]
 }
 
-#======================================
+
+# ======================================
 # Read PDF file
-#======================================
-def read_pdf(file_path):
+# ======================================
+def read_pdf(file_source):
     text = ""
-    with open(file_path, "rb") as f:
-        reader = PyPDF2.PdfReader(f)
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
+    if isinstance(file_source, str):
+        with open(file_source, "rb") as f:
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
+                text += page.extract_text() + "\n"
+        return text
+
+    if hasattr(file_source, "seek"):
+        file_source.seek(0)
+    pdf_bytes = file_source.read()
+    reader = PyPDF2.PdfReader(BytesIO(pdf_bytes))
+    for page in reader.pages:
+        text += page.extract_text() + "\n"
+    if hasattr(file_source, "seek"):
+        file_source.seek(0)
     return text
 
-#======================================
+
+# ======================================
 # Agent settings *Color
 # Change agent names and colors as needed.
-#======================================
+# ======================================
 agent_styles = {
     "User": "background-color:#b0c4d6; color:#1a2634;",
     "Orchestrator": "background-color:#ffe2b2; color:#5a3e1b;",
@@ -54,13 +68,13 @@ agent_styles = {
     "AgentC": "background-color:#f5e9b5; color:#665c1e;",
     "AgentD": "background-color:#f3c1c6; color:#6b2b36;",
     "AgentE": "background-color:#b3d1e6; color:#1b2c3a;",
-    "AgentF": "background-color:#d7ccc8; color:#3e2723;"
+    "AgentF": "background-color:#d7ccc8; color:#3e2723;",
 }
 
-#======================================
+# ======================================
 # Agent settings *Icon
 # Change agent names and icons as needed.
-#======================================
+# ======================================
 agent_images = {
     "Orchestrator": "https://img.icons8.com/fluency/96/administrator-male.png",
     "AgentA": "https://img.icons8.com/color/96/000000/a.png",
@@ -69,58 +83,47 @@ agent_images = {
     "AgentD": "https://img.icons8.com/color/96/000000/d.png",
     "AgentE": "https://img.icons8.com/color/96/000000/e.png",
     "AgentF": "https://img.icons8.com/color/96/000000/f.png",
-    "User": "https://img.icons8.com/color/96/000000/user.png"
+    "User": "https://img.icons8.com/color/96/000000/user.png",
 }
 
-#======================================
+
+# ======================================
 # Streamlit settings
-#======================================
+# ======================================
 def main():
     st.markdown(
-#======================================
-# If you have a company logo, please put the URL here
-#======================================
-
+        # ======================================
+        # If you have a company logo, please put the URL here
+        # ======================================
         """
         <div style="text-align:center;">
             <img src="https://logos-world.net/wp-content/uploads/2020/09/Microsoft-Logo.png" width="220"/>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
     st.markdown("---")
     st.markdown(
-#======================================
-# Set the title of the multi-agent system
-#======================================
+        # ======================================
+        # Set the title of the multi-agent system
+        # ======================================
         """
         <h2 style="text-align:center;">
             Example: Multi-Agent System<br> Subtitle
         </h2>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
     st.markdown("---")
 
-#======================================
-# Change agent names as needed.
-#======================================
-    selectable_agents = [
-        "AgentA",
-        "AgentB",
-        "AgentC",
-        "AgentD",
-        "AgentE",
-        "AgentF"
-    ]
+    # ======================================
+    # Change agent names as needed.
+    # ======================================
+    selectable_agents = ["AgentA", "AgentB", "AgentC", "AgentD", "AgentE", "AgentF"]
 
     theme = st.text_input("Enter theme (required)", key="discussion_theme")
 
-    selected_agents = st.multiselect(
-        "Select agents",
-        options=selectable_agents,
-        default=[]
-    )
+    selected_agents = st.multiselect("Select agents", options=selectable_agents, default=[])
     # Orchestrator and User are default
     selected_agents = ["Orchestrator"] + selected_agents + ["User"]
 
@@ -137,14 +140,14 @@ def main():
         st.session_state.chat_started = False
 
     # Read PDF file
-    pdf_path = st.text_input("Reference file path (optional)", key="pdf_path")
+    uploaded_file = st.file_uploader("Upload reference PDF (optional)", type=["pdf"], key="pdf_upload")
 
     # Send input to agents
     if st.button("Send input to agents"):
         user_message = ""
-        if pdf_path:
+        if uploaded_file is not None:
             try:
-                user_message = read_pdf(pdf_path)
+                user_message = read_pdf(uploaded_file)
                 st.session_state.user_message = user_message
                 st.success("File loaded successfully.")
                 st.text_area("Loaded file", user_message, height=200)
@@ -180,7 +183,8 @@ def main():
 
     # Display conversation history
     if st.session_state.initialized and st.session_state.groupchat and st.session_state.chat_started:
-        st.markdown("""
+        st.markdown(
+            """
         <style>
         .chat-row { margin-bottom: 1.5em; }
         .chat-bubble {
@@ -214,7 +218,9 @@ def main():
             box-shadow: 0 1px 4px rgba(0,0,0,0.07);
         }
         </style>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         st.markdown("### Conversation history of each agent")
         chat_container = st.container()
@@ -227,11 +233,7 @@ def main():
                     continue
                 name = msg.get("name", "Unknown")
                 content = msg.get("content", "")
-                if (
-                    content is None
-                    or (isinstance(content, str) and content.strip() in ["", "None"])
-                    or isinstance(content, (list, dict))
-                ):
+                if content is None or (isinstance(content, str) and content.strip() in ["", "None"]) or isinstance(content, (list, dict)):
                     continue
                 if not isinstance(content, str):
                     content = str(content)
@@ -241,11 +243,9 @@ def main():
                     or content.strip().startswith("***** Response from calling tool")
                 ):
                     continue
-                if (
-                    (isinstance(content, str) and (
-                        (content.strip().startswith("[{") and content.strip().endswith("}]")) or
-                        (content.strip().startswith("{") and content.strip().endswith("}"))
-                    ))
+                if isinstance(content, str) and (
+                    (content.strip().startswith("[{") and content.strip().endswith("}]"))
+                    or (content.strip().startswith("{") and content.strip().endswith("}"))
                 ):
                     continue
                 if name == "User" and not content.strip():
@@ -266,7 +266,7 @@ def main():
                             </div>
                         </div>
                         """,
-                        unsafe_allow_html=True
+                        unsafe_allow_html=True,
                     )
                 else:
                     st.markdown(
@@ -279,9 +279,10 @@ def main():
                             </div>
                         </div>
                         """,
-                        unsafe_allow_html=True
+                        unsafe_allow_html=True,
                     )
                 time.sleep(5)  # Set the display interval for each message to 5 seconds
+
 
 if __name__ == "__main__":
     main()
