@@ -118,3 +118,20 @@ This project is licensed under the MIT License.
 - [src/app.py](src/app.py)
 
 ---
+
+## アプリケーションの Azure へのデプロイ (Azure CLI から)
+```sh
+# リポジトリの取得
+git clone https://github.com/mahiya/Multi-Agent-System-by-AutoGen
+cd Multi-Agent-System-by-AutoGen
+
+# 環境変数の設定
+API_ENDPOINT="https://[Azure OpenAI Service のアカウント名].openai.azure.com/"
+API_KEY="[Azure OpenAI Service のキー]"
+API_VERSION="2025-03-01-preview"
+DEPLOYMENT_NAME="gpt-4o"
+
+# デプロイ
+chmod +x deploy.sh
+./deploy.sh
+```

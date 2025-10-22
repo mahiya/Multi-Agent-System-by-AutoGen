@@ -2,3 +2,4 @@ autogen==0.9.1.post0
 PyPDF2==3.0.1
 python-dotenv==1.1.0
 streamlit==1.45.1
+ag2[openai]==0.9.1.post0
