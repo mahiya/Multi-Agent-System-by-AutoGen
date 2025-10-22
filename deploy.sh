@@ -23,16 +23,7 @@ az webapp create \
     --resource-group $RESOURCE_GROUP \
     --runtime 'PYTHON:3.11'
 
-# アプリケーションをデプロイする
-az webapp up \
-    --resource-group $RESOURCE_GROUP \
-    --name $APP_NAME \
-    --plan $APP_PLAN_NAME \
-    --sku $SKU \
-    --location $REGION \
-    --runtime 'PYTHON:3.11'
-
-# Azure Web Apps の環境変数
+# Azure Web Apps の環境変数を設定
 az webapp config appsettings set \
     --resource-group $RESOURCE_GROUP \
     --name $APP_NAME \
@@ -42,8 +33,17 @@ az webapp config appsettings set \
                "API_ENDPOINT=$API_ENDPOINT" \
                "API_VERSION=$API_VERSION"
 
-# スタートアップコマンドを設定する
+# スタートアップコマンドを設定
 az webapp config set \
     --resource-group $RESOURCE_GROUP \
     --name $APP_NAME \
     --startup-file "python -m streamlit run src/app.py --server.port 8000 --server.address 0.0.0.0"
+
+# アプリケーションをデプロイ
+az webapp up \
+    --resource-group $RESOURCE_GROUP \
+    --name $APP_NAME \
+    --plan $APP_PLAN_NAME \
+    --sku $SKU \
+    --location $REGION \
+    --runtime 'PYTHON:3.11'
